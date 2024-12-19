@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Capitales</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #3a6186, #89253e);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin-top: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            width: 300px;
+            border: 2px solid white;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+        }
+        input::placeholder {
+            color: #ddd;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            margin-left: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #3a6186;
+            color: white;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #5a768b;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 2.5rem;
+        }
+        p {
+            font-size: 1.2rem;
+        }
+        .counter {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 20px;
+            color: #fff;
+        }
+        .correct {
+            color: #0f0; /* Verde para respuestas correctas */
+        }
+        .incorrect {
+            color: #ffeb3b; /* Amarillo para respuestas incorrectas */
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego de Capitales</h1>
+    <div class="container">
+        <p><strong>País:</strong> <span id="country"></span></p>
+        <input type="text" id="capital" placeholder="Escribe la capital" onkeypress="handleEnter(event)" />
+        <button onclick="checkAnswer()">Enviar</button>
+        <button onclick="giveHint()">Dar pista</button>
+        <p id="message" class="message"></p>
+        <p id="counter" class="counter">
+            Respuestas correctas: <span id="correctCount">0</span> |
+            Respuestas incorrectas: <span id="incorrectCount">0</span>
+        </p>
+    </div>
+
+    <script>
+        const countriesAndCapitals = [
+            { country: "España", capital: "Madrid" },
+            { country: "Francia", capital: "París" },
+            { country: "Alemania", capital: "Berlín" },
+            { country: "Italia", capital: "Roma" },
+            { country: "Portugal", capital: "Lisboa" },
+            { country: "México", capital: "Ciudad de México" },
+            { country: "Argentina", capital: "Buenos Aires" },
+            { country: "Brasil", capital: "Brasilia" },
+            { country: "Colombia", capital: "Bogotá" },
+            { country: "Perú", capital: "Lima" },
+            { country: "Chile", capital: "Santiago" },
+            { country: "Venezuela", capital: "Caracas" },
+            { country: "Canadá", capital: "Ottawa" },
+            { country: "Estados Unidos", capital: "Washington D. C." },
+            { country: "Reino Unido", capital: "Londres" },
+            { country: "Rusia", capital: "Moscú" },
+            { country: "China", capital: "Pekín" },
+            { country: "Japón", capital: "Tokio" },
+            { country: "India", capital: "Nueva Delhi" },
+            { country: "Sudáfrica", capital: "Pretoria" },
+            { country: "Australia", capital: "Canberra" },
+            { country: "Egipto", capital: "El Cairo" },
+            { country: "Noruega", capital: "Oslo" },
+            { country: "Suecia", capital: "Estocolmo" },
+            { country: "Finlandia", capital: "Helsinki" },
+            { country: "Dinamarca", capital: "Copenhague" },
+            { country: "Polonia", capital: "Varsovia" },
+            { country: "Grecia", capital: "Atenas" },
+            { country: "Turquía", capital: "Ankara" },
+            { country: "Corea del Sur", capital: "Seúl" },
+            { country: "Corea del Norte", capital: "Pionyang" },
+            { country: "Pakistán", capital: "Islamabad" },
+            { country: "Irán", capital: "Teherán" },
+            { country: "Iraq", capital: "Bagdad" },
+            { country: "Israel", capital: "Jerusalén" },
+            { country: "Arabia Saudita", capital: "Riad" },
+            { country: "Tailandia", capital: "Bangkok" },
+            { country: "Filipinas", capital: "Manila" },
+            { country: "Indonesia", capital: "Yakarta" },
+            { country: "Vietnam", capital: "Hanoi" },
+            { country: "Nueva Zelanda", capital: "Wellington" },
+            { country: "Sudán", capital: "Jartum" },
+            { country: "Kenia", capital: "Nairobi" },
+            { country: "Nigeria", capital: "Abuya" },
+            { country: "Ghana", capital: "Acra" },
+            { country: "Cuba", capital: "La Habana" },
+            { country: "Uruguay", capital: "Montevideo" },
+            { country: "Paraguay", capital: "Asunción" },
+            { country: "Bolivia", capital: "Sucre" },
+            { country: "Ecuador", capital: "Quito" }
+        ];
+
+        let currentQuestion;
+        let usedQuestions = [];
+        let correctAnswers = 0;
+        let incorrectAnswers = 0;
+        let incorrectCountries = [];
+
+        function getRandomQuestion() {
+            if (usedQuestions.length === countriesAndCapitals.length) {
+                showResults();
+                return null;
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * countriesAndCapitals.length);
+            } while (usedQuestions.includes(randomIndex));
+
+            usedQuestions.push(randomIndex);
+            return countriesAndCapitals[randomIndex];
+        }
+
+        function loadQuestion() {
+            currentQuestion = getRandomQuestion();
+            if (!currentQuestion) return;
+
+            document.getElementById("country").textContent = currentQuestion.country;
+            document.getElementById("capital").value = "";
+            document.getElementById("message").textContent = "";
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("capital").value.trim();
+            const correctCapital = currentQuestion.capital;
+
+            const normalizedUserAnswer = normalizeString(userAnswer);
+            const normalizedCorrectAnswer = normalizeString(correctCapital);
+
+            const message = document.getElementById("message");
+
+            if (normalizedUserAnswer === normalizedCorrectAnswer) {
+                correctAnswers++;
+                message.textContent = "¡Correcto! La capital de " + currentQuestion.country + " es " + currentQuestion.capital + ".";
+                message.style.color = "#0f0"; // Verde
+            } else {
+                incorrectAnswers++;
+                incorrectCountries.push(currentQuestion.country);
+                message.textContent = "Incorrecto. La capital de " + currentQuestion.country + " es " + currentQuestion.capital + ".";
+                message.style.color = "#ffeb3b"; // Amarillo
+            }
+
+            // Actualizar los contadores
+            document.getElementById("correctCount").textContent = correctAnswers;
+            document.getElementById("incorrectCount").textContent = incorrectAnswers;
+
+            setTimeout(loadQuestion, 3000);
+        }
+
+        function normalizeString(str) {
+            return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function handleEnter(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        }
+
+        function giveHint() {
+            const hint = currentQuestion.capital[0]; // Primera letra de la capital
+            document.getElementById("message").textContent = `Pista: la capital empieza con la letra "${hint}".`;
+        }
+
+        function showResults() {
+            const message = `Juego terminado. Respuestas correctas: ${correctAnswers}. Respuestas incorrectas: ${incorrectAnswers}.`;
+            const countriesIncorrect = incorrectCountries.length ? `Países incorrectos: ${incorrectCountries.join(", ")}` : "¡Buen trabajo! No te equivocaste.";
+            document.getElementById("message").textContent = `${message} ${countriesIncorrect}`;
+            document.getElementById("counter").style.display = "none"; // Ocultar contador al finalizar
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
