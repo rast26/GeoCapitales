@@ -14,21 +14,25 @@
             padding: 0;
         }
         .container {
-            margin-top: 50px;
+            margin-top: 30px;
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 15px;
             display: inline-block;
+            width: 90%;
+            max-width: 600px;
+            box-sizing: border-box;
         }
         input {
             padding: 10px;
             font-size: 1rem;
-            width: 300px;
+            width: calc(100% - 20px);
             border: 2px solid white;
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.2);
             color: white;
             outline: none;
+            box-sizing: border-box;
         }
         input::placeholder {
             color: #ddd;
@@ -36,31 +40,33 @@
         button {
             padding: 10px 20px;
             font-size: 1rem;
-            margin-left: 10px;
+            margin: 10px 5px 0;
             cursor: pointer;
             border: none;
             border-radius: 5px;
             background: #3a6186;
             color: white;
             transition: background 0.3s;
+            width: calc(45% - 10px);
+            box-sizing: border-box;
         }
         button:hover {
             background: #5a768b;
         }
         .message {
             margin-top: 20px;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: bold;
         }
         h1 {
             margin-top: 20px;
-            font-size: 2.5rem;
+            font-size: 2rem;
         }
         p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         .counter {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
             margin-top: 20px;
             color: #fff;
@@ -69,7 +75,40 @@
             color: #0f0; /* Verde para respuestas correctas */
         }
         .incorrect {
-            color: #ffeb3b; /* Amarillo para respuestas incorrectas */
+            color: #ff0000; /* Rojo para respuestas incorrectas */
+        }
+        .images {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        .images img {
+            max-width: 45%;
+            height: auto;
+            margin: 5px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Responsivo */
+        @media screen and (max-width: 600px) {
+            button {
+                width: 100%; /* Botones ocupan toda la pantalla */
+            }
+            .images img {
+                max-width: 90%; /* Las imágenes ocupan casi todo el ancho */
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            p, .counter {
+                font-size: 1rem;
+            }
+            .message {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
@@ -78,67 +117,40 @@
     <div class="container">
         <p><strong>País:</strong> <span id="country"></span></p>
         <input type="text" id="capital" placeholder="Escribe la capital" onkeypress="handleEnter(event)" />
-        <button onclick="checkAnswer()">Enviar</button>
-        <button onclick="giveHint()">Dar pista</button>
+        <div>
+            <button onclick="checkAnswer()">Enviar</button>
+            <button onclick="giveHint()">Dar pista</button>
+        </div>
         <p id="message" class="message"></p>
+
+        <!-- Contadores -->
         <p id="counter" class="counter">
             Respuestas correctas: <span id="correctCount">0</span> |
             Respuestas incorrectas: <span id="incorrectCount">0</span>
         </p>
+
+        <!-- Contenedor de imágenes -->
+         
+        <!-- <div class="images">
+            <img id="continentImage" src="" alt="Continente" />
+            <img id="countryImage" src="" alt="País" />
+        </div>-->
     </div>
 
     <script>
         const countriesAndCapitals = [
-            { country: "España", capital: "Madrid" },
-            { country: "Francia", capital: "París" },
-            { country: "Alemania", capital: "Berlín" },
-            { country: "Italia", capital: "Roma" },
-            { country: "Portugal", capital: "Lisboa" },
-            { country: "México", capital: "Ciudad de México" },
-            { country: "Argentina", capital: "Buenos Aires" },
-            { country: "Brasil", capital: "Brasilia" },
-            { country: "Colombia", capital: "Bogotá" },
-            { country: "Perú", capital: "Lima" },
-            { country: "Chile", capital: "Santiago" },
-            { country: "Venezuela", capital: "Caracas" },
-            { country: "Canadá", capital: "Ottawa" },
-            { country: "Estados Unidos", capital: "Washington D. C." },
-            { country: "Reino Unido", capital: "Londres" },
-            { country: "Rusia", capital: "Moscú" },
-            { country: "China", capital: "Pekín" },
-            { country: "Japón", capital: "Tokio" },
-            { country: "India", capital: "Nueva Delhi" },
-            { country: "Sudáfrica", capital: "Pretoria" },
-            { country: "Australia", capital: "Canberra" },
-            { country: "Egipto", capital: "El Cairo" },
-            { country: "Noruega", capital: "Oslo" },
-            { country: "Suecia", capital: "Estocolmo" },
-            { country: "Finlandia", capital: "Helsinki" },
-            { country: "Dinamarca", capital: "Copenhague" },
-            { country: "Polonia", capital: "Varsovia" },
-            { country: "Grecia", capital: "Atenas" },
-            { country: "Turquía", capital: "Ankara" },
-            { country: "Corea del Sur", capital: "Seúl" },
-            { country: "Corea del Norte", capital: "Pionyang" },
-            { country: "Pakistán", capital: "Islamabad" },
-            { country: "Irán", capital: "Teherán" },
-            { country: "Iraq", capital: "Bagdad" },
-            { country: "Israel", capital: "Jerusalén" },
-            { country: "Arabia Saudita", capital: "Riad" },
-            { country: "Tailandia", capital: "Bangkok" },
-            { country: "Filipinas", capital: "Manila" },
-            { country: "Indonesia", capital: "Yakarta" },
-            { country: "Vietnam", capital: "Hanoi" },
-            { country: "Nueva Zelanda", capital: "Wellington" },
-            { country: "Sudán", capital: "Jartum" },
-            { country: "Kenia", capital: "Nairobi" },
-            { country: "Nigeria", capital: "Abuya" },
-            { country: "Ghana", capital: "Acra" },
-            { country: "Cuba", capital: "La Habana" },
-            { country: "Uruguay", capital: "Montevideo" },
-            { country: "Paraguay", capital: "Asunción" },
-            { country: "Bolivia", capital: "Sucre" },
-            { country: "Ecuador", capital: "Quito" }
+            { country: "España", capital: "Madrid", continent: "Europa", continentImage: "imagenes/europa.jpg", countryImage: "imagenes/espana.jpg" },
+            { country: "Francia", capital: "París", continent: "Europa", continentImage: "imagenes/europa.jpg", countryImage: "imagenes/francia.jpg" },
+            { country: "Alemania", capital: "Berlín", continent: "Europa", continentImage: "imagenes/europa.jpg", countryImage: "imagenes/alemania.jpg" },
+            { country: "Italia", capital: "Roma", continent: "Europa", continentImage: "imagenes/europa.jpg", countryImage: "imagenes/italia.jpg" },
+            { country: "Portugal", capital: "Lisboa", continent: "Europa", continentImage: "imagenes/europa.jpg", countryImage: "imagenes/portugal.jpg" },
+            { country: "México", capital: "Ciudad de México", continent: "América", continentImage: "imagenes/america.jpg", countryImage: "imagenes/mexico.jpg" },
+            { country: "Argentina", capital: "Buenos Aires", continent: "América", continentImage: "imagenes/america.jpg", countryImage: "imagenes/argentina.jpg" },
+            { country: "Brasil", capital: "Brasilia", continent: "América", continentImage: "imagenes/america.jpg", countryImage: "imagenes/brasil.jpg" },
+            { country: "Colombia", capital: "Bogotá", continent: "América", continentImage: "imagenes/america.jpg", countryImage: "imagenes/colombia.jpg" },
+            { country: "Perú", capital: "Lima", continent: "América", continentImage: "imagenes/america.jpg", countryImage: "imagenes/peru.jpg" },
+            { country: "Chile", capital: "Santiago", continent: "América", continentImage: "imagenes/america.jpg", countryImage: "imagenes/chile.jpg" },
+            { country: "Venezuela", capital: "Caracas", continent: "América", continentImage: "imagenes/america.jpg", countryImage: "imagenes/venezuela.jpg" },
         ];
 
         let currentQuestion;
@@ -169,6 +181,10 @@
             document.getElementById("country").textContent = currentQuestion.country;
             document.getElementById("capital").value = "";
             document.getElementById("message").textContent = "";
+
+            // Mostrar las imágenes
+            document.getElementById("continentImage").src = currentQuestion.continentImage;
+            document.getElementById("countryImage").src = currentQuestion.countryImage;
         }
 
         function checkAnswer() {
@@ -188,7 +204,7 @@
                 incorrectAnswers++;
                 incorrectCountries.push(currentQuestion.country);
                 message.textContent = "Incorrecto. La capital de " + currentQuestion.country + " es " + currentQuestion.capital + ".";
-                message.style.color = "#ffeb3b"; // Amarillo
+                message.style.color = "#ff0000"; // Rojo
             }
 
             // Actualizar los contadores
